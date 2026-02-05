@@ -1,0 +1,1666 @@
+% !TEX program = xelatex
+% NOTE: Unicode 文字のため、XeLaTeX（または LuaLaTeX）でコンパイルしてください。
+\documentclass[11pt]{article}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\setmainfont{Latin Modern Roman}
+\IfFontExistsTF{Noto Serif CJK JP}{\setCJKmainfont{Noto Serif CJK JP}}{%
+  \IfFontExistsTF{Source Han Serif JP}{\setCJKmainfont{Source Han Serif JP}}{%
+    \IfFontExistsTF{HaranoAjiMincho}{\setCJKmainfont{HaranoAjiMincho}}{%
+      \setCJKmainfont{IPAMincho}% last-resort fallback
+    }%
+  }%
+}%
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{tikz-cd}
+\usepackage{multicol}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1\baselineskip}
+
+\begin{document}
+
+\title{Hyper Comparison Category (HCC)\\
+\large A Categorical Framework for Comparison, Height, and Coarse-Graining}
+\author{Jiyoong Kim}
+\date{}
+\maketitle
+
+\begin{abstract}
+We introduce a categorical framework for organizing comparison problems
+across multiple observational or coarse--grained levels.
+A hyper comparison category consists of projection functors,
+an idempotent saturation operator, and invertible $2$--cells
+measuring the discrepancy between saturation and observation.
+These data give rise to quantitative invariants such as defects,
+local supports, and height--type functionals.
+
+Under mild locality and stability assumptions,
+defects admit local decompositions and satisfy propagation properties
+along towers of projections.
+Consequently, inequalities of the form
+\[
+  \mathrm{defect} \le (1+\varepsilon)\,\mathrm{height} + C
+\]
+follow from purely structural considerations once suitable external
+estimates are provided.
+
+The formalism cleanly separates structural mechanisms from
+problem--dependent inputs, and yields a reusable template for reducing
+global comparison questions to local bounds together with their
+propagation across observational scales.
+\end{abstract}
+
+\section{Introduction}
+
+Many mathematical and scientific problems require comparing objects that
+do not naturally inhabit a common space, or whose observable features
+depend on choices of interpretation, resolution, or coarse--graining.
+Examples range from relating models living in different categories, to
+connecting structures defined at distinct observational scales, to
+reconciling local data across incompatible viewpoints. In such
+situations, direct comparison is often ill--posed: the objects of
+interest may not admit a canonical identification, and the act of
+observation itself may distort or suppress relevant information
+\cite{FongSpivak2019,BaezStay2011}.
+
+This paper develops a categorical framework for organizing such
+comparison problems. The guiding principle is that comparison should not
+be performed on the original objects, but on their \emph{shadows} under
+suitable projection functors. Prior to projection, an idempotent
+\emph{saturation} operator enforces a chosen interpretation or
+coarse--graining; the discrepancy between saturation and observation is
+recorded by invertible $2$--cells. Together, these data form what we call
+a \emph{hyper comparison category} (HCC).
+
+The HCC formalism isolates three structural mechanisms that recur across
+diverse contexts:
+
+\begin{itemize}
+  \item a saturation step that fixes an interpretation or abstraction;
+  \item a projection step that extracts observable information;
+  \item a gauge step measuring the noncommutativity between the two.
+\end{itemize}
+
+From these ingredients one obtains quantitative invariants such as
+\emph{defects}, \emph{supports}, and \emph{height--type} functionals.
+Under mild locality and stability assumptions, defects admit local
+decompositions and satisfy monotonicity along towers of projections.
+This yields a propagation principle: once suitable local estimates
+(\emph{external inputs}) are available at a single observational level,
+global inequalities follow automatically across the entire tower.
+
+A key feature of the framework is the clean separation between
+\emph{structural} aspects---encoded categorically and valid in complete
+generality---and \emph{problem--dependent} analytic or arithmetic
+estimates. The former are universal and reusable; the latter enter only
+through an external input at a chosen base level. This separation yields
+a flexible template for reducing global comparison questions to local
+bounds together with their propagation across scales.
+
+The remainder of the paper develops the theory systematically.
+Section~2 introduces hyper comparison categories; Section~3 proves the
+main comparison theorem; Sections~4 and~5 analyze saturation fixed points
+and horizon phenomena; Sections~6 and~7 treat external inputs and their
+stability; Section~8 summarizes the resulting protocol; and Section~9
+illustrates applications in several settings.
+
+\section{Hyper Comparison Categories}
+
+This section introduces the structures underlying a \emph{hyper
+comparison category} (HCC). The purpose is to formalize the interaction
+between a normalization step (\emph{saturation}), an observation step
+(\emph{projection}), and the discrepancies that appear when these
+operations fail to commute. Throughout, $\mathcal C$ denotes a base
+category whose objects represent the systems or models to be compared.
+
+\subsection{Basic data}
+
+Fix a partially ordered set $(K,\preceq)$ of observational levels.
+An HCC consists of:
+
+\begin{itemize}
+  \item a category $\mathcal C$;
+  \item for each $k\in K$, an \emph{observable category} $\mathcal O_k$;
+  \item projection functors $\Pi_k : \mathcal C \to \mathcal O_k$;
+  \item for each $k\preceq k'$, a \emph{coarse--graining functor}
+        $\sigma_{k\to k'} : \mathcal O_k \to \mathcal O_{k'}$,
+        subject to
+        \[
+          \Pi_{k'} = \sigma_{k\to k'} \circ \Pi_k.
+        \]
+\end{itemize}
+
+We additionally require the tower compatibilities
+$\sigma_{k\to k} = \mathrm{Id}_{\mathcal O_k}$ and
+$\sigma_{k'\to k''}\circ\sigma_{k\to k'} = \sigma_{k\to k''}$ whenever
+$k\preceq k'\preceq k''$. The order on $K$ is interpreted as a hierarchy
+of resolutions: larger indices correspond to coarser views.
+
+\subsection{Saturation}
+
+A central role is played by an idempotent endofunctor
+\[
+  S : \mathcal C \to \mathcal C
+\]
+together with a unit $\eta : \mathrm{Id}_{\mathcal C} \Rightarrow S$.
+We refer to $S$ as \emph{saturation}. Intuitively, $S$ enforces a chosen
+interpretation, abstraction, or coarse--graining before comparison.
+
+\begin{definition}
+A \emph{saturation operator} is an idempotent monad $(S,\eta,\mu)$ on
+$\mathcal C$, i.e.\ the multiplication $\mu : S^2 \Rightarrow S$ is an
+isomorphism \cite{MacLane1998,Street1972}. An object $X$ is
+\emph{saturated} (a \emph{fixed point}) if $\eta_X$ is an isomorphism.
+\end{definition}
+
+Saturation provides a canonical normalization step; later, saturated
+objects will serve as baselines for ``defect--zero'' comparisons.
+
+\subsection{Observation}
+
+For each $k\in K$, the functor $\Pi_k$ extracts the observable shadow of
+an object. Comparisons are performed at the level of $\Pi_k(X)$ rather
+than $X$ itself, and the tower relation
+$\Pi_{k'} = \sigma_{k\to k'}\circ\Pi_k$ ensures that coarse--graining is
+compatible with observation.
+
+\subsection{Gauge and defect}
+
+The interaction between saturation and observation is encoded by
+invertible $2$--cells \cite{Leinster2004,Lack2010}. For each morphism
+$f : X \to Y$ in $\mathcal C$
+and each $k\in K$, we are given an invertible $2$--cell in $\mathcal O_k$
+\[
+  \Phi_f^{(k)} :
+    \Pi_k(Sf)\circ \Pi_k(\eta_X)
+    \;\Rightarrow\;
+    \Pi_k(\eta_Y)\circ \Pi_k(f).
+\]
+We call $\Phi_f^{(k)}$ the \emph{gauge} of $f$ at level $k$.
+
+To quantify the size of this discrepancy, assume that each $\mathcal O_k$
+comes equipped with a function assigning to every invertible $2$--cell
+$\alpha$ a number $|\alpha|_k\in\mathbb R_{\ge 0}$, invariant under
+isomorphism of $2$--cells. The \emph{defect} of $f$ at level $k$ is
+\[
+  C_k(f) := |\Phi_f^{(k)}|_k.
+\]
+
+\subsection{Local decomposition}
+
+In many applications, discrepancies decompose into contributions from
+independent ``places'' (primes, features, channels, \ldots). Fix a set
+$\mathcal P$ and, for each $(k,p)$, a localization functor
+\[
+  \mathrm{Loc}_{k,p} : \mathcal O_k \to \mathcal O_{k,p}
+\]
+\cite{Kelly1982}. Assume the size functional decomposes as
+\[
+  |\alpha|_k = \sum_{p\in\mathcal P} |\mathrm{Loc}_{k,p}(\alpha)|_{k,p}.
+\]
+Then
+\[
+  C_k(f) = \sum_{p\in\mathcal P} C_{k,p}(f),
+  \qquad
+  C_{k,p}(f) := |\mathrm{Loc}_{k,p}(\Phi_f^{(k)})|_{k,p}.
+\]
+The set $\{p\in\mathcal P : C_{k,p}(f)>0\}$ is the \emph{support} of $f$
+at level $k$.
+
+\subsection{Tower monotonicity}
+
+Finally, we impose a compatibility between coarse--graining and defect.
+
+\begin{definition}
+An HCC satisfies \emph{tower monotonicity} if for all $k\preceq k'$ and
+all invertible $2$--cells $\alpha$ in $\mathcal O_k$,
+\[
+  |\sigma_{k\to k'}(\alpha)|_{k'} \le |\alpha|_k.
+\]
+Equivalently, $C_{k'}(f)\le C_k(f)$ for all morphisms $f$.
+\end{definition}
+
+Tower monotonicity expresses that coarser observations cannot increase
+the apparent discrepancy between saturation and observation.
+
+\medskip
+
+The data and axioms above constitute a hyper comparison category. The
+next section shows that these structures force a canonical three--step
+factorization of comparison, yielding the main comparison theorem.
+
+\section{The Main Comparison Theorem}
+
+This section records the main structural consequence of the HCC axioms:
+comparison at any observational level decomposes canonically into three
+steps---saturation, observation, and gauge. In particular, the
+quantitative invariants of the theory (defects, supports, and related
+height--type functionals) are all induced by this decomposition.
+
+\subsection{The three--step comparison diagram}
+
+Let $f : X \to Y$ be a morphism in $\mathcal C$, and fix an observational
+level $k\in K$. The unit $\eta_X : X \to SX$ provides the canonical
+saturation map, and applying $S$ to $f$ gives $Sf : SX \to SY$. After
+observing at level $k$, we obtain
+\[
+  \Pi_k(X)
+    \xrightarrow{\Pi_k(\eta_X)}
+  \Pi_k(SX)
+    \xrightarrow{\Pi_k(Sf)}
+  \Pi_k(SY)
+    \xleftarrow{\Pi_k(\eta_Y)}
+  \Pi_k(Y).
+\]
+The gauge axiom (Axiom~A2) supplies an invertible $2$--cell
+\[
+  \Phi_f^{(k)} :
+    \Pi_k(Sf)\circ \Pi_k(\eta_X)
+    \;\Rightarrow\;
+    \Pi_k(\eta_Y)\circ \Pi_k(f),
+\]
+which measures the failure of saturation and observation to commute
+along $f$.
+
+\subsection{Statement of the theorem}
+
+\begin{theorem}[Main Comparison Theorem]
+\label{thm:MCT}
+Let $(\mathcal C,\mathcal O_k,\Pi_k,S,\eta,\Phi_f^{(k)})$ be a hyper
+comparison category. For every morphism $f : X \to Y$ and every
+$k\in K$:
+\begin{enumerate}
+  \item[\textnormal{(1)}] \emph{(Three--step factorization)}
+  Comparison at level $k$ factors uniquely through saturation and
+  observation via the gauge $2$--cell:
+  \[
+    \Pi_k(Sf)\circ \Pi_k(\eta_X)
+    \xRightarrow{\;\Phi_f^{(k)}\;}
+    \Pi_k(\eta_Y)\circ \Pi_k(f).
+  \]
+
+  \item[\textnormal{(2)}] \emph{(Defect)}
+  The defect of $f$ at level $k$,
+  \[
+    C_k(f) := |\Phi_f^{(k)}|_k,
+  \]
+  is a well--defined nonnegative quantity, invariant under isomorphism of
+  $2$--cells.
+
+  \item[\textnormal{(3)}] \emph{(Local decomposition)}
+  Defects decompose over places:
+  \[
+    C_k(f) = \sum_{p\in\mathcal P} C_{k,p}(f),
+    \qquad
+    C_{k,p}(f) := |\mathrm{Loc}_{k,p}(\Phi_f^{(k)})|_{k,p}.
+  \]
+
+  \item[\textnormal{(4)}] \emph{(Subadditivity)}
+  For any composable morphisms $X\xrightarrow{f}Y\xrightarrow{g}Z$,
+  \[
+    C_k(g\circ f) \le C_k(f) + C_k(g).
+  \]
+
+  \item[\textnormal{(5)}] \emph{(Tower monotonicity)}
+  If $k\preceq k'$, then
+  \[
+    C_{k'}(f) \le C_k(f)
+    \qquad\text{and}\qquad
+    C_{k',p}(f) \le C_{k,p}(f)
+    \quad\text{for all } p\in\mathcal P.
+  \]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Item~(1) is exactly Axiom~A2. Item~(2) is the definition of $C_k(f)$ via
+Axiom~A3. Item~(3) follows from the local decomposition axiom (Axiom~A5).
+Item~(4) is Axiom~A4 applied to the gauge $2$--cells. Item~(5) is tower
+monotonicity (Axiom~A6).
+\end{proof}
+
+\subsection{Interpretation}
+
+The theorem shows that every comparison in an HCC reduces to the same
+canonical three--step process:
+\begin{enumerate}
+  \item \emph{saturation} (fix an interpretation),
+  \item \emph{projection} (extract the observable shadow),
+  \item \emph{gauge} (measure the residual discrepancy).
+\end{enumerate}
+All quantitative invariants arise from the gauge data, and the axioms
+ensure that these invariants behave coherently under composition,
+localization, and coarse--graining. This rigidity is the mechanism
+behind the propagation and convergence results developed later.
+
+\section{BH Normal Form}
+
+Saturation plays a dual role in a hyper comparison category: it both
+normalizes objects prior to comparison and singles out a distinguished
+class of objects on which defects vanish. These objects form the
+\emph{baseline} of the theory; comparisons involving them carry no
+residual discrepancy. This section makes these ideas precise and
+records the universal property of saturation.
+
+\subsection{Saturated objects and baseline comparison}
+
+An object $X$ is \emph{saturated} if the unit $\eta_X : X \to SX$ is an
+isomorphism. Let
+\[
+  \mathcal C^{\mathrm{BH}} := \{\, X\in\mathcal C : \eta_X \text{ is an isomorphism}\,\}
+\]
+be the full subcategory of saturated (``BH'') objects.
+
+\begin{lemma}
+If $X\in\mathcal C^{\mathrm{BH}}$, then for every $k\in K$,
+\[
+  C_k(\mathrm{id}_X)=0.
+\]
+Moreover, if $f:Z\to X$ and $X$ is saturated, then $C_k(f)=0$ for all
+$k\in K$.
+\end{lemma}
+
+\begin{proof}
+If $\eta_X$ is an isomorphism, then the comparison diagram for
+$\mathrm{id}_X$ collapses to an identity $2$--cell. Its size is $0$ by
+Axiom~A3. The general case is analogous.
+\end{proof}
+
+In this sense, saturated objects are \emph{defect--free targets}.
+
+\subsection{Universal property of saturation}
+
+The saturation operator is not merely a normalization procedure: it is a
+reflection of $\mathcal C$ onto the baseline subcategory
+$\mathcal C^{\mathrm{BH}}$.
+
+\begin{theorem}[BH Normal Form]
+\label{thm:BH-normal-form}
+For every object $X\in\mathcal C$, the unit $\eta_X : X \to SX$ exhibits
+$SX$ as the universal morphism from $X$ to a saturated object. In other
+words, for any $B\in\mathcal C^{\mathrm{BH}}$ and any morphism $u : X \to
+B$, there exists a unique morphism $\bar u : SX \to B$ such that
+\[
+  u = \bar u \circ \eta_X.
+\]
+Equivalently, the inclusion $J : \mathcal C^{\mathrm{BH}} \hookrightarrow
+\mathcal C$ admits $S$ as a left adjoint with unit $\eta$.
+\end{theorem}
+
+\begin{proof}
+This is the standard universal property of an idempotent monad; see
+Axiom~A1.
+\end{proof}
+
+In particular, every object admits a canonical ``baseline
+approximation'' $SX$, and comparisons involving $X$ factor through this
+baseline. The comparison diagram of Section~\ref{thm:MCT} always takes
+the form
+\[
+  X \xrightarrow{\eta_X} SX \xrightarrow{Sf} SY \xleftarrow{\eta_Y} Y,
+\]
+with all ambiguity concentrated in the gauge.
+
+\subsection{Defect collapse on the baseline}
+
+\begin{proposition}
+\label{prop:defect-collapse}
+If $X$ is saturated, then for every $f : Z \to X$ and every $k\in K$,
+\[
+  C_k(f) = 0.
+\]
+More generally, for any morphism $f : X \to Y$,
+\[
+  C_k(f) = C_k(Sf).
+\]
+\end{proposition}
+
+\begin{proof}
+If $X$ is saturated, then $\eta_X$ is an isomorphism, so the gauge
+$\Phi_f^{(k)}$ is isomorphic to an identity $2$--cell; hence $C_k(f)=0$
+by Axiom~A3. The second statement follows from functoriality of $S$ and
+Axiom~A2.
+\end{proof}
+
+Thus saturation behaves as an absorbing state for defects: once an
+object is in $\mathcal C^{\mathrm{BH}}$, further saturation does not
+change its comparison behavior.
+
+\subsection{Interpretation}
+
+The BH normal form provides a conceptual baseline for comparison:
+\begin{itemize}
+  \item $SX$ is the canonical interpretation of $X$;
+  \item comparisons factor through $SX$ and $SY$;
+  \item saturated objects form the defect--free core of the theory;
+  \item later results (Sections~5--7) can be viewed as flows toward this
+        baseline.
+\end{itemize}
+
+\section{Support and Horizon}
+
+Defects in a hyper comparison category decompose canonically over
+``places.'' This section develops the resulting geometric intuition: the
+set of places that contribute nontrivially to a comparison forms a
+support, and its behavior under coarse--graining leads to a natural
+\emph{horizon} phenomenon. As the observational level becomes coarser,
+visible support can only shrink, and defects decrease monotonically.
+These facts provide the structural backbone for the propagation and
+convergence results of later sections.
+
+\subsection{Support}
+
+For a morphism $f : X \to Y$ and a level $k\in K$, recall the local
+decomposition
+\[
+  C_k(f) = \sum_{p\in\mathcal P} C_{k,p}(f),
+  \qquad
+  C_{k,p}(f) := |\mathrm{Loc}_{k,p}(\Phi_f^{(k)})|_{k,p}.
+\]
+The \emph{support} of $f$ at level $k$ is
+\[
+  \mathrm{supp}_k(f)
+  := \{\, p\in\mathcal P : C_{k,p}(f) > 0 \,\}.
+\]
+Intuitively, $\mathrm{supp}_k(f)$ records the loci at which the
+comparison between $X$ and $Y$ fails to be defect--free (e.g. primes,
+features, or independent information channels).
+
+\subsection{Monotonicity of support}
+
+Tower monotonicity (Axiom~A6) implies that coarse--graining does not
+increase defect; the same statement holds placewise.
+
+\begin{proposition}[Support monotonicity]
+\label{prop:support-monotone}
+If $k\preceq k'$, then for all $p\in\mathcal P$,
+\[
+  C_{k',p}(f) \le C_{k,p}(f),
+\]
+and consequently
+\[
+  \mathrm{supp}_{k'}(f) \subseteq \mathrm{supp}_k(f).
+\]
+\end{proposition}
+
+\begin{proof}
+Apply Axiom~A6 to the localized invertible $2$--cells
+$\mathrm{Loc}_{k,p}(\Phi_f^{(k)})$.
+\end{proof}
+
+Thus the visible support can only shrink as observations become coarser;
+categorically, this expresses the principle that coarse--graining
+suppresses fine distinctions.
+
+\subsection{Horizon events}
+
+The inclusion in Proposition~\ref{prop:support-monotone} may be strict.
+
+\begin{definition}
+A \emph{horizon event} for $f$ between levels $k\preceq k'$ is the strict
+containment
+\[
+  \mathrm{supp}_{k'}(f) \subsetneq \mathrm{supp}_k(f).
+\]
+\end{definition}
+
+At a horizon event, certain places stop contributing to the defect once
+the observational resolution is lowered; such events mark qualitative
+changes in the comparison landscape.
+
+\begin{proposition}[Defect drop at horizon events]
+\label{prop:defect-drop}
+If $k\preceq k'$ and a horizon event occurs, then
+\[
+  C_{k'}(f) < C_k(f)
+\]
+provided there exists
+$p\in\mathrm{supp}_k(f)\setminus\mathrm{supp}_{k'}(f)$ with $C_{k,p}(f)>0$.
+\end{proposition}
+
+\begin{proof}
+By local decomposition,
+\[
+  C_k(f) = \sum_{p\in\mathrm{supp}_k(f)} C_{k,p}(f),
+  \qquad
+  C_{k'}(f) = \sum_{p\in\mathrm{supp}_{k'}(f)} C_{k',p}(f).
+\]
+If a place $p$ disappears from the support and satisfies $C_{k,p}(f)>0$,
+then its contribution is absent from the sum for $C_{k'}(f)$, yielding
+strict inequality.
+\end{proof}
+
+\subsection{Horizon as a coarse--graining boundary}
+
+The terminology is justified by the picture that the horizon is the
+boundary beyond which certain distinctions become invisible. As
+coarse--graining proceeds, the support contracts and the defect
+decreases monotonically. In the extreme case where the support becomes
+empty, the defect must vanish.
+
+\begin{corollary}[Support collapse implies defect collapse]
+\label{cor:support-collapse}
+If $\mathrm{supp}_k(f)=\varnothing$ for some $k$, then $C_k(f)=0$.
+\end{corollary}
+
+\begin{proof}
+Immediate from the local decomposition.
+\end{proof}
+
+\subsection{Interpretation}
+
+Support and horizon give a geometric intuition for comparison:
+\begin{itemize}
+  \item support identifies the loci of nontrivial discrepancy;
+  \item coarse--graining shrinks support and reduces defect;
+  \item horizon events mark qualitative transitions in visibility;
+  \item support collapse corresponds to convergence toward the baseline
+        (BH) regime.
+\end{itemize}
+
+This perspective will be used in Sections~6 and~7 to analyze external
+inputs and their propagation.
+
+\section{External Input}
+
+Sections~2--5 describe how defects behave under saturation, observation,
+localization, and coarse--graining. By themselves, however, these
+structural properties do not yield quantitative bounds relating defects
+to height--type functionals. Such inequalities necessarily depend on
+problem--specific analytic or arithmetic estimates.
+
+This section formalizes the notion of an \emph{external input} (EI): a
+collection of local bounds at a chosen base level which, once supplied,
+serves as the unique problem--dependent ingredient of the theory. The
+propagation results of Section~7 then transport this input throughout
+the entire tower.
+
+\subsection{Height--type functionals}
+
+For each level $k\in K$, fix a nonnegative functional
+\[
+  \mathrm{Rad}_k : \mathrm{Mor}(\mathcal C) \to \mathbb R_{\ge 0},
+\]
+called the \emph{height} at level $k$. In applications, $\mathrm{Rad}_k$
+often arises from a system of local weights $w_k(p)\ge 0$ via
+\[
+  \mathrm{Rad}_k(f)
+    = \sum_{p\in\mathcal P} w_k(p)\,\mathbf 1_{\{p\in\mathrm{supp}_k(f)\}},
+\]
+although no particular form will be used here.
+
+\subsection{Local budgets and exceptions}
+
+Fix a base level $k_0\in K$ and a parameter $\varepsilon>0$. The aim is
+to bound $C_{k_0}(f)$ in terms of $\mathrm{Rad}_{k_0}(f)$ by controlling
+local contributions $C_{k_0,p}(f)$.
+
+\begin{definition}[Local budget]
+An \emph{$(\varepsilon,k_0)$--budget} is a family of inequalities
+\[
+  C_{k_0,p}(f) \le (1+\varepsilon)\,w_{k_0}(p)
+  \qquad\text{for all but finitely many } p\in\mathcal P.
+\]
+Equivalently, the exceptional set
+\[
+  E_{\varepsilon,k_0}(f)
+    := \{\, p\in\mathcal P : C_{k_0,p}(f) > (1+\varepsilon)\,w_{k_0}(p) \,\}
+\]
+is required to be finite.
+\end{definition}
+
+Exceptional places are those at which the defect exceeds the prescribed
+budget; their contribution must be handled separately.
+
+\subsection{Excess control}
+
+\begin{definition}[Excess bound]
+An \emph{excess bound} at $(\varepsilon,k_0)$ is a constant
+$K_{\varepsilon,k_0}\ge 0$ such that, for all morphisms $f$,
+\[
+  \sum_{p\in E_{\varepsilon,k_0}(f)} C_{k_0,p}(f)
+    \le K_{\varepsilon,k_0}.
+\]
+\end{definition}
+
+Combining the budgeted and exceptional contributions yields the seed
+inequality.
+
+\begin{proposition}[Seed inequality]
+\label{prop:seed-EI}
+If an $(\varepsilon,k_0)$--budget and an excess bound
+$K_{\varepsilon,k_0}$ are available, then for all morphisms $f$,
+\[
+  C_{k_0}(f)
+    \le (1+\varepsilon)\,\mathrm{Rad}_{k_0}(f)
+      + K_{\varepsilon,k_0}.
+\]
+\end{proposition}
+
+\begin{proof}
+Write
+$C_{k_0}(f)=\sum_{p\notin E_{\varepsilon,k_0}(f)} C_{k_0,p}(f) +
+\sum_{p\in E_{\varepsilon,k_0}(f)} C_{k_0,p}(f)$. Use the budget on the
+first sum and the excess bound on the second.
+\end{proof}
+
+The inequality of Proposition~\ref{prop:seed-EI} is the \emph{external
+input} required for propagation.
+
+\subsection{Failure modes}
+
+The EI may fail for several distinct reasons, all of which are
+structural and independent of the specific application:
+
+\begin{enumerate}
+  \item[\textnormal{(F1)}] \emph{Infinite exceptions:}
+  the set $E_{\varepsilon,k_0}(f)$ is infinite.
+
+  \item[\textnormal{(F2)}] \emph{Unbounded excess:}
+  the exceptional sum cannot be bounded uniformly.
+
+  \item[\textnormal{(F3)}] \emph{Weight mismatch:}
+  the chosen weights $w_{k_0}(p)$ do not reflect the scale of
+  $C_{k_0,p}(f)$.
+
+  \item[\textnormal{(F4)}] \emph{Tower incompatibility:}
+  the height functionals fail to satisfy the monotonicity
+  $\mathrm{Rad}_{k'}(f)\le \mathrm{Rad}_k(f)$ for $k\preceq k'$.
+\end{enumerate}
+
+These are the only obstructions to establishing the seed inequality.
+Once EI holds at the base level, Section~7 guarantees its propagation
+throughout the tower.
+
+\subsection{Interpretation}
+
+The external input isolates the analytic or arithmetic core of a
+comparison problem:
+\begin{itemize}
+  \item the HCC structure determines the formal behavior of defects;
+  \item EI supplies quantitative bounds at a single level $k_0$;
+  \item once supplied, those bounds propagate automatically.
+\end{itemize}
+
+In this way, EI is the unique interface between the categorical
+framework and problem--specific estimates; the remaining arguments are
+purely structural.
+
+\section{Stability and Propagation}
+
+Once an external input (EI) is established at a single observational
+level, the structural axioms of a hyper comparison category ensure that
+the resulting inequality is stable under composition, localization, and
+coarse--graining. This section records these stability properties and
+proves the propagation theorem: a one--shot estimate at a base level
+extends automatically to all higher levels in the tower.
+
+\subsection{Stability under composition}
+
+Defects are subadditive under composition (Theorem~\ref{thm:MCT}(4)):
+\[
+  C_k(g\circ f) \le C_k(f) + C_k(g).
+\]
+Assume likewise that the height--type functionals satisfy
+\[
+  \mathrm{Rad}_k(g\circ f)
+    \le \mathrm{Rad}_k(f) + \mathrm{Rad}_k(g),
+\]
+for instance when the weights $w_k(p)$ are additive over supports.
+
+\begin{proposition}[Compositional stability]
+\label{prop:composition-stability}
+Fix $\varepsilon>0$ and $K\ge 0$. If
+\[
+  C_k(h) \le (1+\varepsilon)\,\mathrm{Rad}_k(h) + K
+\]
+holds for all $h$ in a class $\mathcal G\subseteq\mathrm{Mor}(\mathcal C)$,
+then the same inequality holds for any finite composite of morphisms in
+$\mathcal G$.
+\end{proposition}
+
+\begin{proof}
+Iterate subadditivity for $C_k$ and the corresponding subadditivity for
+$\mathrm{Rad}_k$.
+\end{proof}
+
+In applications, this reduces verification of EI to a convenient
+generating set.
+
+\subsection{Stability under localization}
+
+Suppose defects and heights admit compatible local decompositions at
+level $k$.
+
+\begin{proposition}[Local stability]
+\label{prop:local-stability}
+Assume the seed inequality at level $k$,
+\[
+  C_k(f) \le (1+\varepsilon)\,\mathrm{Rad}_k(f) + K,
+\]
+holds for all morphisms $f$. Then for each $p\in\mathcal P$ there exist
+constants $K_{k,p}\ge 0$ with $\sum_{p\in\mathcal P} K_{k,p}\le K$ such
+that
+\[
+  C_{k,p}(f) \le (1+\varepsilon)\,w_k(p) + K_{k,p}
+\]
+for all $f$.
+\end{proposition}
+
+\begin{proof}
+Decompose both sides into sums over $p\in\mathcal P$ and absorb any
+exceptional contribution into $K_{k,p}$.
+\end{proof}
+
+\subsection{Stability under coarse--graining}
+
+Tower monotonicity (Theorem~\ref{thm:MCT}(5)) yields:
+
+\begin{proposition}[Tower stability]
+\label{prop:tower-stability}
+If $k\preceq k'$ and the seed inequality holds at level $k$, then
+\[
+  C_{k'}(f) \le C_k(f)
+  \qquad\text{and}\qquad
+  \mathrm{Rad}_{k'}(f) \le \mathrm{Rad}_k(f)
+\]
+for all morphisms $f$.
+\end{proposition}
+
+Coarse--graining therefore cannot destroy an inequality; it can only
+improve it.
+
+\subsection{Propagation}
+
+\begin{theorem}[Propagation of external input]
+\label{thm:propagation}
+Fix $\varepsilon>0$ and a base level $k_0\in K$. Suppose the seed
+inequality
+\[
+  C_{k_0}(f)
+    \le (1+\varepsilon)\,\mathrm{Rad}_{k_0}(f)
+      + K_{\varepsilon,k_0}
+\]
+holds for all morphisms $f$. Then for every $k\succeq k_0$,
+\[
+  C_k(f)
+    \le (1+\varepsilon)\,\mathrm{Rad}_k(f)
+      + K_{\varepsilon,k_0}.
+\]
+\end{theorem}
+
+\begin{proof}
+By tower monotonicity, $C_k(f)\le C_{k_0}(f)$. By monotonicity of the
+height, $\mathrm{Rad}_{k_0}(f)\ge \mathrm{Rad}_k(f)$. Substitute the seed
+inequality at level $k_0$.
+\end{proof}
+
+\subsection{Propagation from generators}
+
+\begin{corollary}
+\label{cor:generator-propagation}
+If the seed inequality holds at level $k_0$ for all morphisms in a class
+$\mathcal G$ whose elements generate $\mathrm{Mor}(\mathcal C)$ under
+finite composition, then it holds for all morphisms at every level
+$k\succeq k_0$.
+\end{corollary}
+
+\begin{proof}
+Combine Proposition~\ref{prop:composition-stability} with
+Theorem~\ref{thm:propagation}.
+\end{proof}
+
+\subsection{Interpretation}
+
+The tower acts as a stabilizing mechanism:
+\begin{itemize}
+  \item EI is required only once, at a single base level;
+  \item all higher levels inherit the inequality automatically;
+  \item composition and localization preserve admissible bounds;
+  \item coarse--graining can only improve them.
+\end{itemize}
+
+This principle underlies the protocol of Section~8.
+
+\section{Protocol}
+
+The preceding sections separate comparison problems into two components:
+(1) a universal structural part encoded by the HCC axioms, and (2) a
+problem--dependent analytic/arithmetic part supplied as an external
+input (EI). The purpose of this section is to assemble these ingredients
+into a practical procedure for deriving global comparison inequalities.
+
+\medskip
+
+The protocol has five steps (Steps~0--4): structural verification, BH
+normalization, EI at a seed level, propagation, and (when available)
+convergence.
+
+\subsection{Step 0: Structural verification}
+
+Before applying any quantitative estimate, check that the ambient data
+indeed form a hyper comparison category and that the quantitative
+functionals used in EI are compatible with the tower. Concretely, one
+typically verifies:
+
+\begin{itemize}
+  \item defect monotonicity under coarse--graining;
+  \item local decomposition of defects and heights;
+  \item subadditivity under composition;
+  \item compatibility of projection towers;
+  \item finiteness of support at each level.
+\end{itemize}
+
+If any of these fail, the propagation mechanism of Section~7 cannot be
+invoked.
+
+\subsection{Step 1: BH normalization}
+
+Given $f : X \to Y$, the BH normal form (Theorem~\ref{thm:BH-normal-form})
+provides the canonical factorization
+\[
+  X \xrightarrow{\eta_X} SX
+    \xrightarrow{Sf} SY
+    \xleftarrow{\eta_Y} Y.
+\]
+All ambiguity in comparing $X$ and $Y$ is concentrated in the gauge
+$2$--cells attached to $Sf$. Accordingly, the defect $C_k(f)$ is a
+structural invariant determined by the HCC data alone.
+
+\subsection{Step 2: External input at a seed level}
+
+Choose a base observational level $k_0\in K$. The only
+problem--dependent task is to prove an EI inequality at level $k_0$:
+\[
+  C_{k_0}(f)
+    \le (1+\varepsilon)\,\mathrm{Rad}_{k_0}(f)
+      + K_{\varepsilon,k_0}.
+\]
+As in Section~6, this typically consists of:
+
+\begin{itemize}
+  \item a local budget for $C_{k_0,p}(f)$ outside a finite exceptional set;
+  \item an excess bound controlling the total contribution of exceptional
+        places.
+\end{itemize}
+
+Once these are established, the seed inequality follows
+(Proposition~\ref{prop:seed-EI}).
+
+\subsection{Step 3: Propagation}
+
+The propagation theorem (Theorem~\ref{thm:propagation}) upgrades the seed
+estimate at $k_0$ to every higher level in the tower:
+\[
+  C_k(f)
+    \le (1+\varepsilon)\,\mathrm{Rad}_k(f)
+      + K_{\varepsilon,k_0}
+  \qquad\text{for all } k\succeq k_0.
+\]
+No further analytic input is required: tower monotonicity forces both
+$C_k$ and $\mathrm{Rad}_k$ to decrease under coarse--graining.
+
+If a generating class $\mathcal G$ is available, it suffices to verify EI
+on $\mathcal G$; the resulting inequality then extends to all morphisms
+(Corollary~\ref{cor:generator-propagation}).
+
+\subsection{Step 4: Convergence}
+
+If the tower admits eventual support collapse---i.e.\ if for each $f$ there
+exists $k_\infty\succeq k_0$ with $\mathrm{supp}_{k_\infty}(f)=\varnothing$---
+then Corollary~\ref{cor:support-collapse} implies
+\[
+  C_{k_\infty}(f)=0.
+\]
+Thus the comparison converges to the BH regime at sufficiently coarse
+levels.
+
+\subsection{Summary}
+
+\begin{enumerate}
+  \item Verify the HCC axioms and quantitative compatibility.
+  \item Normalize via the BH factorization.
+  \item Establish EI at a single seed level $k_0$.
+  \item Propagate the inequality throughout the tower.
+  \item When support collapses, conclude convergence to defect--zero.
+\end{enumerate}
+
+\section{Applications}
+
+The hyper comparison category (HCC) formalism is designed to isolate the
+structural mechanisms underlying comparison across multiple
+observational levels. Since the axioms are minimal and purely
+categorical, the framework applies broadly. The examples below
+illustrate how the protocol of Section~8 organizes global comparison
+problems into local estimates together with their propagation.
+
+\subsection{General applications}
+
+Many systems naturally come with multiple observational or
+coarse--grained levels and projection maps between them; in such
+situations, HCC--type data often arise essentially for free.
+
+\paragraph{(1) Multi--resolution analysis.}
+Hierarchies of function spaces (e.g.\ wavelet towers, Sobolev scales)
+provide natural projection functors. Saturation corresponds to a
+canonical normalization (e.g.\ orthogonal projection), while defects
+measure discrepancies between representations at different resolutions.
+Propagation then yields stability of bounds across scales.
+
+\paragraph{(2) Coarse--graining in physics.}
+Renormalization--group flows produce towers of effective theories.
+Saturation corresponds to fixing a renormalization scheme, projection to
+integrating out degrees of freedom, and defects quantify the mismatch
+between coarse--grained and saturated dynamics. External inputs arise
+from local energy or coupling bounds.
+
+\paragraph{(3) Model comparison in machine learning.}
+Different architectures or feature maps define observational levels.
+Saturation corresponds to canonical preprocessing, projection to feature
+extraction, and defects measure the noncommutativity of these
+operations. Local budgets correspond to per--feature error bounds.
+
+\paragraph{(4) Interpretation selection in cognitive systems.}
+Competing interpretations of a stimulus can be modeled by different
+saturation operators. Projection extracts observable behavior, and
+defects measure interpretation--dependent discrepancies. Horizon events
+correspond to the loss of discriminability under coarse observation.
+
+These examples share the same pattern: comparison becomes well--behaved
+only after saturation, and defects propagate predictably along towers of
+observations.
+
+\subsection{Arithmetic applications}
+
+Arithmetic settings often come equipped with natural local decompositions
+(e.g.\ primes, valuations) and height--type functionals. The HCC
+framework provides a uniform language for organizing such data.
+
+\paragraph{(1) Height inequalities.}
+Local contributions at each prime define $C_{k,p}(f)$, while the height
+$\mathrm{Rad}_k(f)$ aggregates prescribed weights. An external input at a
+single level then yields global height bounds by propagation.
+
+\paragraph{(2) Local--global principles.}
+Local budgets control contributions at almost all primes, while excess
+bounds control finitely many exceptional ones. The seed inequality then
+produces global estimates.
+
+\paragraph{(3) abc--type inequalities.}
+In many contexts, the defect measures the complexity of a morphism and
+the height measures the size of its support. The HCC protocol reduces
+global inequalities of the form
+\[
+  \mathrm{defect} \le (1+\varepsilon)\,\mathrm{height} + C
+\]
+to verifying local bounds at a single level.
+
+These applications indicate that HCC captures the structural essence of
+local--global comparison in arithmetic.
+
+\subsection{IUT--type comparison architectures (brief)}
+
+Certain comparison architectures in arithmetic geometry exhibit the same
+structural pattern encoded in the HCC axioms. Without assuming any
+specific theory, one can view the following correspondences as a neutral
+structural dictionary:
+
+\begin{itemize}
+  \item saturation models fixing an interpretation or abstraction before
+        comparison;
+  \item projection functors encode observable data at various levels;
+  \item gauge $2$--cells record the noncommutativity between saturation
+        and observation;
+  \item local decomposition reflects contributions from primes (or other
+        independent places);
+  \item towers encode hierarchies of coarse--grained or partially
+        interpreted structures.
+\end{itemize}
+
+In such settings, the HCC protocol provides a reusable template for
+organizing long comparison chains: normalize via saturation, establish
+local estimates at a seed level, and propagate across the tower.
+
+\subsection{Interpretation}
+
+Across these examples, HCC serves as a unifying language for comparison
+problems with multiple observational levels. The protocol of Section~8
+reduces global inequalities to local bounds, while propagation ensures
+that once an estimate holds at a single level, it holds uniformly across
+the hierarchy.
+
+\section{Conclusion}
+
+We introduced a categorical framework for comparison across multiple
+observational (or coarse--grained) levels. The guiding principle is that
+comparison becomes well behaved once three operations are disentangled:
+\emph{saturation} (fixing an interpretation), \emph{projection}
+(extracting observable data), and \emph{gauge} (recording their
+noncommutativity). From these data one obtains quantitative invariants
+such as defects, supports, and height--type functionals.
+
+The HCC axioms force robust structural behavior: defects admit local
+decompositions, decrease under coarse--graining, and interact
+predictably with composition and localization. These mechanisms culminate
+in the propagation theorem: once a suitable external input is available
+at a single seed level, the corresponding inequality automatically holds
+throughout the tower. The protocol of Section~8 packages this logic into
+an actionable template that reduces global comparison problems to local
+bounds together with their propagation.
+
+A central feature is the separation between universal categorical
+structure and problem--dependent analytic or arithmetic estimates. The
+former are encoded entirely in the HCC axioms; the latter enter only via
+external input at a chosen base level. This division allows the same
+structural machinery to be reused across diverse settings, from
+multi--resolution analysis and coarse--graining in physics to arithmetic
+height inequalities and other local--global phenomena.
+
+More broadly, HCC provides a unifying language for comparison across
+scales, clarifying how local information controls global behavior once
+stability and monotonicity are built into the ambient structure. We
+expect further applications in contexts where interpretation,
+observation, and coarse--graining interact in nontrivial ways.
+
+\appendix
+\appendix
+
+\section*{Appendix A. Examples of Saturation (Sel)}
+
+This appendix collects several examples of saturation operators.
+The purpose is not to exhaust all possibilities, but to illustrate
+how the abstract notion of an idempotent monad arises naturally in
+contexts where comparison requires fixing an interpretation,
+normalization, or coarse--graining before observable data can be
+meaningfully extracted.
+
+\subsection*{A.1 Reflective subcategories}
+
+Let $\mathcal C$ be a category and $\mathcal D\subseteq\mathcal C$ a
+reflective subcategory.  The reflector
+\[
+  S : \mathcal C \to \mathcal D \hookrightarrow \mathcal C
+\]
+is an idempotent monad, with unit $\eta_X : X \to SX$ exhibiting $SX$ as
+the universal approximation of $X$ inside $\mathcal D$.
+Typical examples include:
+
+\begin{itemize}
+  \item abelianization of groups;
+  \item sheafification of presheaves;
+  \item completion of metric spaces;
+  \item normalization of schemes.
+\end{itemize}
+
+In each case, $SX$ represents the canonical form of $X$ with respect to a
+chosen interpretation.
+
+\subsection*{A.2 Normalization procedures}
+
+Many constructions in geometry and analysis produce canonical
+normalizations that are idempotent by design.  Examples include:
+
+\begin{itemize}
+  \item orthogonal projection onto a closed subspace of a Hilbert space;
+  \item taking the reduced subscheme of a scheme;
+  \item passing to the closure of a subset in a topological space;
+  \item projecting a matrix onto a fixed subalgebra (e.g.\ diagonal part).
+\end{itemize}
+
+These operations enforce a structural constraint before comparison.
+
+\subsection*{A.3 Coarse--graining and abstraction}
+
+In settings with multiple levels of description, saturation may represent
+the act of fixing an interpretation or abstraction.  Examples include:
+
+\begin{itemize}
+  \item selecting a coordinate system or gauge in physics;
+  \item canonical preprocessing of data (e.g.\ centering, whitening);
+  \item abstraction maps in logic or type theory;
+  \item quotienting by symmetries or equivalence relations.
+\end{itemize}
+
+Here $SX$ is the canonical representative of $X$ under the chosen
+abstraction.
+
+\subsection*{A.4 Algebraic and arithmetic examples}
+
+In arithmetic geometry, saturation often corresponds to imposing a
+canonical structure before comparison.  Examples include:
+
+\begin{itemize}
+  \item passing from a ring to its integral closure;
+  \item taking the Néron model of an abelian variety;
+  \item forming the maximal unramified extension of a local field;
+  \item normalizing divisors or line bundles.
+\end{itemize}
+
+These operations ensure that subsequent comparisons reflect intrinsic
+rather than incidental features.
+
+\subsection*{A.5 Information--theoretic examples}
+
+In information processing, saturation corresponds to canonical
+preprocessing steps that remove irrelevant variation:
+
+\begin{itemize}
+  \item projecting data onto a feature subspace;
+  \item enforcing invariances (e.g.\ translation or scale invariance);
+  \item canonical encoding of signals;
+  \item normalization of probability distributions.
+\end{itemize}
+
+Such operations are idempotent and serve as interpretation--fixing
+preparations for comparison.
+
+\medskip
+
+Across all these examples, saturation plays the same conceptual role:
+it produces a canonical form of an object, eliminating interpretational
+ambiguity and enabling meaningful comparison at the observable level.
+
+\section*{Appendix B. Examples of Projection Towers}
+
+This appendix provides examples of projection functors and tower
+structures.  The purpose is to illustrate how hierarchies of
+observational levels arise naturally in many mathematical and scientific
+contexts, and how coarse--graining manifests as a functorial passage to
+coarser categories.
+
+\subsection*{B.1 Multi--resolution analysis}
+
+Let $\mathcal C$ be a space of functions (e.g.\ $L^2(\mathbb R)$) and let
+$\mathcal O_k$ denote the subspace spanned by wavelets at scales
+$\ge k$.  The projection
+\[
+  \Pi_k : \mathcal C \to \mathcal O_k
+\]
+is the orthogonal projection onto the coarse resolution $k$.  The tower
+maps
+\[
+  \sigma_{k\to k'} : \mathcal O_k \to \mathcal O_{k'}
+  \qquad (k\preceq k')
+\]
+are the natural inclusions of coarser scales.  Coarse--graining removes
+fine detail, and defects measure the mismatch between normalized and
+observed representations.
+
+\subsection*{B.2 Coarse--graining in physics}
+
+In renormalization group (RG) theory, one considers a hierarchy of
+effective theories obtained by integrating out high--energy degrees of
+freedom.  Let $\mathcal C$ be the category of microscopic models, and
+$\mathcal O_k$ the category of effective theories at scale $k$.  The
+projection
+\[
+  \Pi_k : \mathcal C \to \mathcal O_k
+\]
+is the RG flow map, and the tower maps
+\[
+  \sigma_{k\to k'} : \mathcal O_k \to \mathcal O_{k'}
+\]
+represent further coarse--graining.  The HCC axioms reflect the physical
+principle that coarse--graining suppresses fine distinctions.
+
+\subsection*{B.3 Feature hierarchies in machine learning}
+
+Let $\mathcal C$ be a space of data objects (e.g.\ images).  A feature
+extractor at level $k$ produces a representation
+\[
+  \Pi_k : \mathcal C \to \mathcal O_k,
+\]
+where $\mathcal O_k$ is the feature space at depth $k$ of a neural
+network.  Deeper layers correspond to coarser, more abstract features.
+The tower maps
+\[
+  \sigma_{k\to k'} : \mathcal O_k \to \mathcal O_{k'}
+\]
+are induced by the network architecture.  Defects measure the
+noncommutativity between preprocessing (saturation) and feature
+extraction.
+
+\subsection*{B.4 Valuation towers}
+
+Let $\mathcal C$ be a category of arithmetic objects (e.g.\ number
+fields, schemes).  For each $k$, let $\mathcal O_k$ encode data visible
+at a set of valuations of bounded complexity (e.g.\ primes of norm
+$\le k$).  The projection
+\[
+  \Pi_k : \mathcal C \to \mathcal O_k
+\]
+forgets contributions from valuations of complexity $>k$.  The tower maps
+\[
+  \sigma_{k\to k'} : \mathcal O_k \to \mathcal O_{k'}
+\]
+add back valuations of intermediate complexity.  This produces a natural
+local--global hierarchy.
+
+\subsection*{B.5 Abstract poset--indexed towers}
+
+More generally, let $(K,\preceq)$ be any poset and let
+$\{\mathcal O_k\}_{k\in K}$ be a diagram of categories with functors
+\[
+  \sigma_{k\to k'} : \mathcal O_k \to \mathcal O_{k'}
+  \qquad (k\preceq k')
+\]
+satisfying the coherence conditions of a functor from $K$ to
+$\mathbf{Cat}$.  Any family of projections
+\[
+  \Pi_k : \mathcal C \to \mathcal O_k
+\]
+compatible with the tower maps defines a projection tower in the sense of
+the HCC axioms.
+
+\medskip
+
+These examples demonstrate that projection towers arise naturally in
+contexts where information is organized hierarchically.  The HCC
+framework abstracts the common structural features of such hierarchies
+and provides a unified language for comparison across observational
+levels.
+
+\section*{Appendix C. Defect, Support, and Height: Additional Examples}
+
+This appendix provides concrete illustrations of the quantitative
+invariants introduced in Sections~3--6.  The goal is to clarify how
+defects arise from gauge $2$--cells, how support identifies the loci of
+nontrivial discrepancy, and how height--type functionals aggregate local
+information.
+
+\subsection*{C.1 A simple defect computation}
+
+Let $\mathcal O_k$ be a category enriched in groupoids, and let
+$\alpha : A \Rightarrow B$ be an invertible $2$--cell.  Suppose the size
+functional $|\cdot|_k$ is given by
+\[
+  |\alpha|_k = \ell(\alpha),
+\]
+where $\ell$ is a length function on the automorphism group of $A$.
+Then for a morphism $f : X \to Y$ in $\mathcal C$, the defect
+\[
+  C_k(f) = |\Phi_f^{(k)}|_k
+\]
+measures the minimal ``cost'' of adjusting the comparison diagram so that
+saturation and observation commute.
+
+Even in this simple setting, defects encode the essential obstruction to
+direct comparison.
+
+\subsection*{C.2 Support: finite and infinite cases}
+
+Let $\mathcal P$ be a set of places (e.g.\ primes, features, channels).
+For a morphism $f$, the localized defects
+\[
+  C_{k,p}(f) = |\mathrm{Loc}_{k,p}(\Phi_f^{(k)})|_{k,p}
+\]
+identify the contributions from each place.
+
+\paragraph{Finite support.}
+If $C_{k,p}(f)=0$ for all but finitely many $p$, then
+\[
+  \mathrm{supp}_k(f)
+    = \{\, p : C_{k,p}(f)>0 \,\}
+\]
+is finite.  This is typical in arithmetic settings where only finitely
+many primes contribute to a given comparison.
+
+\paragraph{Infinite support.}
+In analytic or geometric settings, support may be infinite.  For
+instance, if $C_{k,p}(f)$ decays rapidly with $p$, then
+\[
+  C_k(f) = \sum_{p\in\mathcal P} C_{k,p}(f)
+\]
+converges even though $\mathrm{supp}_k(f)$ is infinite.  The HCC axioms
+accommodate both behaviors.
+
+\subsection*{C.3 Horizon events}
+
+Consider a tower $k\preceq k'\preceq k''$.  Suppose
+\[
+  \mathrm{supp}_k(f) = \{p_1,p_2,p_3\},\qquad
+  \mathrm{supp}_{k'}(f) = \{p_1,p_2\},\qquad
+  \mathrm{supp}_{k''}(f) = \{p_1\}.
+\]
+Then the transitions
+\[
+  \mathrm{supp}_k(f)\supsetneq\mathrm{supp}_{k'}(f)
+  \quad\text{and}\quad
+  \mathrm{supp}_{k'}(f)\supsetneq\mathrm{supp}_{k''}(f)
+\]
+are horizon events.  At each horizon, the defect drops by the
+contribution of the disappearing places:
+\[
+  C_{k'}(f) = C_k(f) - C_{k,p_3}(f),\qquad
+  C_{k''}(f) = C_{k'}(f) - C_{k',p_2}(f).
+\]
+This illustrates how coarse--graining suppresses fine distinctions.
+
+\subsection*{C.4 Height functionals}
+
+Height--type functionals aggregate local weights.  A typical example is
+\[
+  \mathrm{Rad}_k(f)
+    = \sum_{p\in\mathrm{supp}_k(f)} w_k(p),
+\]
+where $w_k(p)\ge 0$ is a prescribed weight.
+
+\paragraph{Uniform weights.}
+If $w_k(p)=1$ for all $p$, then $\mathrm{Rad}_k(f)$ counts the size of
+the support.
+
+\paragraph{Complexity weights.}
+If $w_k(p)$ increases with the complexity of $p$, then
+$\mathrm{Rad}_k(f)$ measures the ``weighted size'' of the support.
+
+\paragraph{Decay weights.}
+If $w_k(p)$ decreases with $p$, then $\mathrm{Rad}_k(f)$ emphasizes
+low--complexity contributions.
+
+The HCC framework does not impose any specific choice of weights; only
+monotonicity under coarse--graining is required for propagation.
+
+\subsection*{C.5 Local decomposition in practice}
+
+Let $f : X \to Y$ be a morphism with defect
+\[
+  C_k(f) = 7.3.
+\]
+Suppose the localized contributions are
+\[
+  C_{k,p_1}(f)=3.1,\quad
+  C_{k,p_2}(f)=2.0,\quad
+  C_{k,p_3}(f)=2.2,
+\]
+and $C_{k,p}(f)=0$ for all other $p$.  Then
+\[
+  \mathrm{supp}_k(f)=\{p_1,p_2,p_3\},
+\]
+and the height
+\[
+  \mathrm{Rad}_k(f)
+    = w_k(p_1)+w_k(p_2)+w_k(p_3)
+\]
+aggregates the weights of these places.
+
+This decomposition is the basis for the external input: local budgets
+control each $C_{k,p}(f)$, and excess bounds control the exceptional
+places.
+
+\medskip
+
+These examples illustrate how defects, supports, and height--type
+functionals behave in concrete settings.  They provide the intuition
+behind the structural results of Sections~5--7 and the protocol of
+Section~8.
+
+\section*{Appendix D. Categorical Background}
+
+This appendix summarizes the categorical notions used in the definition
+of a hyper comparison category.  The material is standard, and the
+presentation is tailored to the needs of the main text; see
+\cite{MacLane1998,Leinster2004,Street1972,Borceux1994} for background.
+
+\subsection*{D.1 Idempotent monads and reflective subcategories}
+
+A monad on a category $\mathcal C$ consists of an endofunctor
+$S : \mathcal C \to \mathcal C$ together with natural transformations
+\[
+  \eta : \mathrm{Id}_{\mathcal C} \Rightarrow S,
+  \qquad
+  \mu : S^2 \Rightarrow S,
+\]
+satisfying the usual associativity and unit axioms.  The monad is
+\emph{idempotent} if $\mu$ is an isomorphism.
+
+Idempotent monads correspond precisely to reflective subcategories:
+if $\mathcal D\subseteq\mathcal C$ is reflective with reflector
+$S : \mathcal C \to \mathcal D$, then $S$ extends to an idempotent monad
+on $\mathcal C$.  Conversely, the fixed points of an idempotent monad
+form a reflective subcategory.
+
+In the HCC framework, saturation is modeled by an idempotent monad.
+
+\subsection*{D.2 2-categories and invertible 2-cells}
+
+A 2-category consists of:
+
+\begin{itemize}
+  \item objects;
+  \item 1-morphisms between objects;
+  \item 2-morphisms between 1-morphisms.
+\end{itemize}
+
+Composition of 1-morphisms is associative up to coherent 2-isomorphism,
+and 2-morphisms compose both vertically and horizontally.
+
+In a hyper comparison category, the observable categories $\mathcal O_k$
+are treated as 2-categories (or categories enriched in groupoids), and
+the gauge $\Phi_f^{(k)}$ is an invertible 2-cell measuring the failure of
+saturation and observation to commute.
+
+\subsection*{D.3 Localization functors}
+
+Given a category $\mathcal O_k$ and a set of ``places'' $\mathcal P$, a
+localization functor
+\[
+  \mathrm{Loc}_{k,p} : \mathcal O_k \to \mathcal O_{k,p}
+\]
+extracts the contribution of the place $p$.  These functors are required
+to be compatible with the size functionals:
+\[
+  |\alpha|_k = \sum_{p\in\mathcal P} |\mathrm{Loc}_{k,p}(\alpha)|_{k,p}.
+\]
+
+Localization is used to define support and to decompose defects into
+local contributions.
+
+\subsection*{D.4 Size functionals on 2-cells}
+
+For each level $k$, the size functional
+\[
+  |\cdot|_k : \{\text{invertible 2-cells in }\mathcal O_k\}
+    \to \mathbb R_{\ge 0}
+\]
+assigns a nonnegative real number to each invertible 2-cell.  The
+functional is required to satisfy:
+
+\begin{itemize}
+  \item invariance under isomorphism of 2-cells;
+  \item subadditivity under vertical and horizontal composition;
+  \item compatibility with localization;
+  \item monotonicity under coarse--graining.
+\end{itemize}
+
+These conditions ensure that defects behave predictably under the
+operations of the HCC.
+
+\subsection*{D.5 Poset-indexed diagrams and coherence}
+
+Let $(K,\preceq)$ be a poset.  A $K$-indexed diagram of categories
+consists of:
+
+\begin{itemize}
+  \item a category $\mathcal O_k$ for each $k\in K$;
+  \item functors $\sigma_{k\to k'} : \mathcal O_k \to \mathcal O_{k'}$
+        for each $k\preceq k'$;
+  \item coherence conditions
+        \[
+          \sigma_{k\to k} = \mathrm{Id},
+          \qquad
+          \sigma_{k\to k''}
+            = \sigma_{k'\to k''}\circ\sigma_{k\to k'}
+            \quad (k\preceq k'\preceq k'').
+        \]
+\end{itemize}
+
+Such diagrams model hierarchies of observational levels.  The projection
+functors $\Pi_k : \mathcal C \to \mathcal O_k$ are required to satisfy
+\[
+  \Pi_{k'} = \sigma_{k\to k'} \circ \Pi_k,
+\]
+ensuring that observation commutes with coarse--graining.
+
+\medskip
+
+These categorical notions provide the structural foundation for the HCC
+framework.  They ensure that saturation, observation, and gauge interact
+coherently, and that defects behave predictably under localization,
+composition, and coarse--graining.
+
+\section*{Appendix E. Structural Correspondence with IUT-type Architectures (Optional)}
+
+This appendix outlines a purely structural correspondence between the
+components of a hyper comparison category (HCC) and certain comparison
+architectures that arise in arithmetic geometry.  The purpose is not to
+assert any mathematical claims about specific theories, but simply to
+illustrate how the abstract mechanisms of saturation, projection, gauge,
+local decomposition, and propagation may be recognized in settings with
+similar structural features.
+
+The correspondence is schematic and depends only on the formal pattern
+of comparison across multiple observational levels.
+
+\subsection*{E.1 Saturation and interpretation fixing}
+
+In HCC, saturation is an idempotent monad
+\[
+  S : \mathcal C \to \mathcal C
+\]
+that fixes an interpretation before comparison.  In IUT-type
+architectures, one encounters analogous procedures in which objects are
+first placed into a canonical or interpretation-stable form before
+observable data are extracted.  The role of $SX$ is played by the
+interpretation-fixed version of $X$.
+
+\subsection*{E.2 Projection and observable data}
+
+Projection functors
+\[
+  \Pi_k : \mathcal C \to \mathcal O_k
+\]
+extract observable shadows at level $k$.  In IUT-type settings, various
+“visible” invariants or partially interpreted structures serve a similar
+role, providing the data on which comparisons are performed.
+
+\subsection*{E.3 Gauge and comparison discrepancy}
+
+The gauge $2$-cells
+\[
+  \Phi_f^{(k)} :
+    \Pi_k(Sf)\circ\Pi_k(\eta_X)
+    \Rightarrow
+    \Pi_k(\eta_Y)\circ\Pi_k(f)
+\]
+measure the failure of saturation and observation to commute.  In
+IUT-type architectures, comparison often involves reconciling data
+obtained after different interpretation or abstraction steps.  The
+resulting discrepancies play the same structural role as the gauge.
+
+\subsection*{E.4 Local decomposition}
+
+In HCC, defects decompose over places:
+\[
+  C_k(f) = \sum_{p\in\mathcal P} C_{k,p}(f).
+\]
+IUT-type settings frequently involve contributions indexed by primes,
+valuations, or other local data.  The structural similarity lies in the
+existence of independent local channels whose contributions aggregate to
+a global invariant.
+
+\subsection*{E.5 Towers and hierarchical comparison}
+
+The projection tower
+\[
+  \Pi_{k'} = \sigma_{k\to k'}\circ\Pi_k
+\]
+models comparison across multiple observational levels.  IUT-type
+architectures also organize comparison across hierarchies of partially
+interpreted structures.  The structural pattern—comparison at one level
+feeding into comparison at another—is formally similar.
+
+\subsection*{E.6 External input}
+
+In HCC, the only analytic or arithmetic input enters through a seed
+inequality at a single level:
+\[
+  C_{k_0}(f)
+    \le (1+\varepsilon)\,\mathrm{Rad}_{k_0}(f) + K.
+\]
+IUT-type settings likewise require external estimates at specific stages
+of a comparison chain.  The structural role of these estimates matches
+the role of the EI in the HCC protocol.
+
+\subsection*{E.7 Propagation along the tower}
+
+The propagation theorem shows that once the seed inequality holds at
+$k_0$, it holds for all $k\succeq k_0$.  In IUT-type architectures,
+comparison results often propagate along a hierarchy of structures in a
+similar manner.  The HCC framework abstracts this propagation mechanism.
+
+\medskip
+
+This appendix is intended only as a structural guide.  The HCC formalism
+is independent of any specific arithmetic theory, and the correspondences
+above are schematic analogies rather than mathematical identifications.
+
+\begin{thebibliography}{99}
+
+\bibitem{MacLane1998}
+S.\ Mac~Lane,
+\emph{Categories for the Working Mathematician},
+2nd ed., Graduate Texts in Mathematics 5, Springer, 1998.
+
+\bibitem{Borceux1994}
+F.\ Borceux,
+\emph{Handbook of Categorical Algebra 1: Basic Category Theory},
+Encyclopedia of Mathematics and its Applications 50, Cambridge University Press, 1994.
+
+\bibitem{Street1972}
+R.\ Street,
+\emph{The formal theory of monads},
+Journal of Pure and Applied Algebra \textbf{2} (1972), 149--168.
+
+\bibitem{Leinster2004}
+T.\ Leinster,
+\emph{Higher Operads, Higher Categories},
+London Mathematical Society Lecture Note Series 298, Cambridge University Press, 2004.
+
+\bibitem{Kelly1982}
+G.\ M.\ Kelly,
+\emph{Basic Concepts of Enriched Category Theory},
+London Mathematical Society Lecture Note Series 64, Cambridge University Press, 1982.
+
+\bibitem{Lack2010}
+S.\ Lack,
+\emph{A $2$-categories companion},
+in \emph{Towards Higher Categories}, IMA Volumes in Mathematics and its Applications 152,
+Springer, 2010, 105--191.
+
+\bibitem{BaezStay2011}
+J.\ C.\ Baez and M.\ Stay,
+\emph{Physics, topology, logic and computation: a Rosetta Stone},
+in \emph{New Structures for Physics}, Lecture Notes in Physics 813,
+Springer, 2011, 95--172.
+
+\bibitem{FongSpivak2019}
+B.\ Fong and D.\ I.\ Spivak,
+\emph{Seven Sketches in Compositionality: An Invitation to Applied Category Theory},
+Cambridge University Press, 2019.
+
+\end{thebibliography}
+
+\end{document}

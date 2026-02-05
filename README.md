@@ -29,3 +29,9 @@ comparison arguments.
 ---
 
 ## Repository Structure
+
+PDF file: HCCpre.pdf
+
+LaTeX file: HCCpre.tex
+
+README.md

@@ -1,4 +1,5 @@
 # Hyper Comparison Categories (HCC)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18494405.svg)](https://doi.org/10.5281/zenodo.18494405)
 
 A structural framework for comparison across multiple observational levels,
 based on saturation, projection towers, gauge 2-cells, and defect
